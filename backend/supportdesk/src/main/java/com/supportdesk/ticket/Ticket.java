@@ -1,12 +1,22 @@
 package com.supportdesk.ticket;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tickets")
@@ -25,10 +35,12 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "ticket_status")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private TicketStatus status = TicketStatus.OPEN;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "ticket_priority")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private TicketPriority priority = TicketPriority.MEDIUM;
 
     @Column(name = "customer_email", nullable = false)
