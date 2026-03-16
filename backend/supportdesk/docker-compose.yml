@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: supportdesk
+      POSTGRES_USER: supportdesk_admin
+      POSTGRES_PASSWORD: localpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # data persists between restarts
+
+volumes:
+  postgres_data:
