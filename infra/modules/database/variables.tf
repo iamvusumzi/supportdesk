@@ -20,11 +20,6 @@ variable "vpc_id" {
 }
 
 variable "subnet_ids" {
-  description = "Private subnets the RDS instance can be placed in"
+  description = "Public subnets the RDS instance can be placed in"
   type        = list(string)
-}
-
-variable "app_security_group_id" {
-  description = "Only this security group (your app) can reach the DB"
-  type        = string
 }

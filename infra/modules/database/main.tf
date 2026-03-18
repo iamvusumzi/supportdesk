@@ -9,12 +9,12 @@ resource "aws_security_group" "db" {
   name   = "supportdesk-db-sg"
   vpc_id = var.vpc_id
 
+# Lambda - no static ip so we open to all, credentials + SSL are the guard.
   ingress {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    # Only allow traffic FROM the app's security group
-    security_groups = [var.app_security_group_id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -43,5 +43,5 @@ resource "aws_db_instance" "postgres" {
   skip_final_snapshot = true
 
   # Don't expose this to the internet
-  publicly_accessible = false
+  publicly_accessible = true
 }

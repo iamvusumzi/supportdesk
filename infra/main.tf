@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
 
   # Remote state — swap in your actual bucket name
@@ -26,33 +30,13 @@ provider "aws" {
 # you explicitly allow it.
 
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"   # 65,536 private IP addresses
-  enable_dns_hostnames = true             # RDS needs this to generate its endpoint hostname
+  cidr_block           = "10.0.0.0/16" # 65,536 private IP addresses
+  enable_dns_hostnames = true          # RDS needs this to generate its endpoint hostname
 
   tags = { Name = "supportdesk-vpc" }
 }
 
-# Two private subnets in different availability zones.
-# RDS requires subnets in at least 2 AZs even for single-AZ deployments.
-resource "aws_subnet" "private_a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"    # 256 addresses
-  availability_zone = "${var.aws_region}a"
-
-  tags = { Name = "supportdesk-private-a" }
-}
-
-resource "aws_subnet" "private_b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "${var.aws_region}b"
-
-  tags = { Name = "supportdesk-private-b" }
-}
-
-# One public subnet — this is where your app (Spring Boot) will eventually live,
-# behind a load balancer. For Phase 1, your app runs locally but connects to RDS
-# over a bastion or SSM. More on that below.
+# One public subnet — RDS lives here (publicly accessible, SG locked to your IP)
 resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.10.0/24"
@@ -60,6 +44,15 @@ resource "aws_subnet" "public_a" {
   map_public_ip_on_launch = true
 
   tags = { Name = "supportdesk-public-a" }
+}
+
+# Second subnet in a different AZ — RDS subnet group requires at least two
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.11.0/24"
+  availability_zone       = "${var.aws_region}b"
+  map_public_ip_on_launch = true
+  tags                    = { Name = "supportdesk-public-b" }
 }
 
 # Internet Gateway — gives the public subnet a route to the internet
@@ -85,33 +78,39 @@ resource "aws_route_table_association" "public_a" {
   route_table_id = aws_route_table.public.id
 }
 
-# ── Security group for the app ─────────────────────────────────────────────────
-# Even though Spring Boot runs locally in Phase 1, we declare this security
-# group now so the database module can reference it. In Phase 2 this group
-# will be attached to an EC2 instance or ECS task.
-
-resource "aws_security_group" "app" {
-  name   = "supportdesk-app-sg"
-  vpc_id = aws_vpc.main.id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "supportdesk-app-sg" }
+resource "aws_route_table_association" "public_b" {
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public.id
 }
 
-# ── Database module ────────────────────────────────────────────────────────────
+# ── Modules ────────────────────────────────────────────────────────────
 module "database" {
-  source = "./modules/database"
+  source      = "./modules/database"
+  db_name     = var.db_name
+  db_username = var.db_username
+  db_password = var.db_password
+  vpc_id      = aws_vpc.main.id
+  subnet_ids  = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+}
 
-  db_name               = var.db_name
-  db_username           = var.db_username
-  db_password           = var.db_password
-  vpc_id                = aws_vpc.main.id
-  subnet_ids            = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-  app_security_group_id = aws_security_group.app.id
+module "lambda" {
+  source          = "./modules/lambda"
+  db_url          = module.database.db_endpoint
+  db_username     = var.db_username
+  db_password     = var.db_password
+  aws_region      = var.aws_region
+  jar_path        = "../backend/supportdesk/target/supportdesk-0.0.1-SNAPSHOT-aws.jar"
+  allowed_origins = var.allowed_origins
+}
+
+module "api_gateway" {
+  source               = "./modules/api_gateway"
+  lambda_invoke_arn    = module.lambda.invoke_arn
+  lambda_function_name = module.lambda.function_name
+  aws_region           = var.aws_region
+  allowed_origins      = var.allowed_origins
+}
+
+module "frontend" {
+  source = "./modules/frontend"
 }

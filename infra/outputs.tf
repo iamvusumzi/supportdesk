@@ -1,8 +1,21 @@
-output "db_endpoint" {
-  description = "Pass this to Spring Boot as SPRING_DATASOURCE_URL"
-  value       = module.database.db_endpoint
+output "frontend_url" {
+  description = "Open this in your browser once deployed"
+  value       = module.frontend.cloudfront_url
 }
 
-output "vpc_id" {
-  value = aws_vpc.main.id
+output "api_endpoint" {
+  description = "Pass this as VITE_API_URL when building the frontend"
+  value       = module.api_gateway.api_endpoint
+}
+
+output "s3_bucket_name" {
+  value = module.frontend.s3_bucket_name
+}
+
+output "cloudfront_id" {
+  value = module.frontend.cloudfront_id
+}
+
+output "db_endpoint" {
+  value = module.database.db_endpoint
 }
