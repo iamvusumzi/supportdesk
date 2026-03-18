@@ -196,7 +196,14 @@ A Lambda function uses the Claude API to automatically classify incoming tickets
 
 Customers interact with the support system through a chat interface powered by Claude. Natural language queries trigger backend workflows — creating tickets, checking status, escalating issues — without touching the traditional UI.
 
----
+## Following along
+
+Each phase is preserved as a branch:
+
+- `phase/1` — Core ticketing, Lambda, RDS, S3 + CloudFront
+- `phase/2` — Async routing with SQS _(in progress)_
+
+## Check out any branch to see the complete working state of that phase.
 
 ## Local development
 
