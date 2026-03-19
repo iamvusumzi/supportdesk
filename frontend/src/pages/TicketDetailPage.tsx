@@ -5,6 +5,7 @@ import { ticketsApi } from "../api/tickets";
 import { StatusBadge } from "../components/StatusBadge";
 import { PriorityBadge } from "../components/PriorityBadge";
 import type { TicketStatus, TicketPriority } from "../types/ticket";
+import { TeamBadge } from "../components/TeamBadge";
 
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +57,9 @@ export function TicketDetailPage() {
           <p>
             Customer:{" "}
             <span className="text-gray-700">{ticket.customerEmail}</span>
+          </p>
+          <p>
+            Team: <TeamBadge team={ticket.assignedTeam} />
           </p>
           <p>
             Created:{" "}

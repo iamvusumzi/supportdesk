@@ -4,3 +4,8 @@ infra/terraform.tfstate
 infra/terraform.tfstate.backup
 infra/.terraform.lock.hcl
 .vscode/
+consumer/layer/
+backend/target
+backend/supportdesk/dependency-reduced-pom.xml
+infra/modules/lambda_consumer/consumer.zip
+infra/modules/lambda_consumer/layer.zip

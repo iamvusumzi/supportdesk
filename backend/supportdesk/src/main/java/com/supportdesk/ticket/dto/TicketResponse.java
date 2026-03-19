@@ -3,6 +3,7 @@ package com.supportdesk.ticket.dto;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.supportdesk.ticket.TeamName;
 import com.supportdesk.ticket.Ticket;
 import com.supportdesk.ticket.TicketPriority;
 import com.supportdesk.ticket.TicketStatus;
@@ -18,6 +19,7 @@ public class TicketResponse {
     private TicketStatus status;
     private TicketPriority priority;
     private String customerEmail;
+    private TeamName assignedTeam;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -29,6 +31,7 @@ public class TicketResponse {
         response.setStatus(ticket.getStatus());
         response.setPriority(ticket.getPriority());
         response.setCustomerEmail(ticket.getCustomerEmail());
+        response.setAssignedTeam(ticket.getAssignedTeam());
         response.setCreatedAt(ticket.getCreatedAt());
         response.setUpdatedAt(ticket.getUpdatedAt());
         return response;

@@ -1,5 +1,6 @@
 export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type TeamName = "GENERAL_SUPPORT" | "ESCALATIONS";
 
 export interface Ticket {
   id: string;
@@ -8,6 +9,7 @@ export interface Ticket {
   status: TicketStatus;
   priority: TicketPriority;
   customerEmail: string;
+  assignedTeam: TeamName | null;
   createdAt: string;
   updatedAt: string;
 }

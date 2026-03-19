@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.supportdesk.shared.exception.ResourceNotFoundException;
+import com.supportdesk.shared.messaging.TicketEventPublisher;
 import com.supportdesk.ticket.dto.CreateTicketRequest;
 import com.supportdesk.ticket.dto.TicketResponse;
 import com.supportdesk.ticket.dto.UpdateTicketRequest;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final TicketEventPublisher eventPublisher;
 
     public TicketResponse createTicket(CreateTicketRequest request) {
         Ticket ticket = new Ticket();
@@ -26,7 +28,9 @@ public class TicketService {
         ticket.setPriority(request.getPriority());
         ticket.setCustomerEmail(request.getCustomerEmail());
 
-        return TicketResponse.from(ticketRepository.save(ticket));
+        Ticket savedTicket = ticketRepository.save(ticket);
+        eventPublisher.publishTicketCreated(savedTicket.getId(), savedTicket.getPriority().name());
+        return TicketResponse.from(savedTicket);
     }
 
     public List<TicketResponse> getAllTickets(TicketStatus status) {

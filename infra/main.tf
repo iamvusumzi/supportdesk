@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.0"
+    }
   }
 
   # Remote state — swap in your actual bucket name
@@ -100,7 +104,9 @@ module "lambda" {
   db_password     = var.db_password
   aws_region      = var.aws_region
   jar_path        = "../backend/supportdesk/target/supportdesk-0.0.1-SNAPSHOT-aws.jar"
-  allowed_origins = var.allowed_origins
+  allowed_origins = module.frontend.cloudfront_url
+  sqs_queue_url   = module.sqs.queue_url
+  sqs_queue_arn   = module.sqs.queue_arn
 }
 
 module "api_gateway" {
@@ -108,9 +114,23 @@ module "api_gateway" {
   lambda_invoke_arn    = module.lambda.invoke_arn
   lambda_function_name = module.lambda.function_name
   aws_region           = var.aws_region
-  allowed_origins      = var.allowed_origins
+  allowed_origins      = module.frontend.cloudfront_url
 }
 
 module "frontend" {
   source = "./modules/frontend"
+}
+
+module "sqs" {
+  source = "./modules/sqs"
+}
+
+module "lambda_consumer" {
+  source      = "./modules/lambda_consumer"
+  queue_arn   = module.sqs.queue_arn
+  db_url      = module.database.db_endpoint
+  db_username = var.db_username
+  db_password = var.db_password
+  aws_region  = var.aws_region
+  source_path = "../consumer"
 }

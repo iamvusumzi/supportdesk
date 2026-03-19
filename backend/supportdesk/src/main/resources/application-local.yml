@@ -5,3 +5,7 @@ spring:
     password: localpassword
   jpa:
     show-sql: true
+
+sqs:
+  queue:
+    url: http://localhost:9324/queue/supportdesk-ticket-routing #to prevent errors when running locally without SQS.

@@ -6,6 +6,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { PriorityBadge } from "../components/PriorityBadge";
 import { CreateTicketModal } from "../components/CreateTicketModal";
 import type { TicketStatus } from "../types/ticket";
+import { TeamBadge } from "../components/TeamBadge";
 
 const STATUS_FILTERS: Array<{
   label: string;
@@ -74,16 +75,22 @@ export function TicketListPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {["Title", "Status", "Priority", "Customer", "Created", ""].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="text-left px-4 py-3 text-gray-500 font-medium"
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
+              {[
+                "Title",
+                "Status",
+                "Priority",
+                "Customer",
+                "Team",
+                "Created",
+                "",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="text-left px-4 py-3 text-gray-500 font-medium"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -105,6 +112,9 @@ export function TicketListPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-600">
                   {ticket.customerEmail}
+                </td>
+                <td className="px-4 py-3">
+                  <TeamBadge team={ticket.assignedTeam} />
                 </td>
                 <td className="px-4 py-3 text-gray-400">
                   {new Date(ticket.createdAt).toLocaleDateString()}

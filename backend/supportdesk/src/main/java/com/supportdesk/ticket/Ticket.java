@@ -33,6 +33,8 @@ public class Ticket {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
+    // Postgres custom enum types require @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    // without this Hibernate sends VARCHAR and Postgres rejects it
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "ticket_status")
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
@@ -45,6 +47,11 @@ public class Ticket {
 
     @Column(name = "customer_email", nullable = false)
     private String customerEmail;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "assigned_team", columnDefinition = "team_name")
+    private TeamName assignedTeam;
 
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();

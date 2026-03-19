@@ -19,9 +19,3 @@ variable "db_password" {
   sensitive = true
   # No default — this must be passed in explicitly. Never commit a password.
 }
-
-variable "allowed_origins" {
-  description = "Comma-separated list of allowed CORS origins"
-  type        = string
-  default     = "*"
-}

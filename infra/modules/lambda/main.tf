@@ -25,6 +25,20 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy" "lambda_sqs_publish" {
+  name = "supportdesk-lambda-sqs-publish"
+  role = aws_iam_role.lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["sqs:SendMessage"]
+      Resource = var.sqs_queue_arn
+    }]
+  })
+}
+
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/supportdesk-backend"
   retention_in_days = 7
@@ -42,7 +56,7 @@ resource "aws_s3_object" "backend_jar" {
   bucket = aws_s3_bucket.lambda_deployments.bucket
   key    = "supportdesk-backend.jar"
   source = var.jar_path
-  etag   = filemd5(var.jar_path)  # forces Lambda update when jar changes
+  source_hash = filesha256(var.jar_path) # Lambda update when jar changes
 }
 
 resource "aws_lambda_function" "backend" {
@@ -51,9 +65,10 @@ resource "aws_lambda_function" "backend" {
   handler       = "com.supportdesk.LambdaHandler::handleRequest"
   runtime       = "java21"
 
-  # S3 instead of direct upload
   s3_bucket = aws_s3_bucket.lambda_deployments.bucket
   s3_key    = aws_s3_object.backend_jar.key
+
+  source_code_hash = filesha256(var.jar_path)
 
   timeout     = 30
   memory_size = 1024
@@ -69,6 +84,7 @@ resource "aws_lambda_function" "backend" {
       SPRING_DATASOURCE_USERNAME = var.db_username
       SPRING_DATASOURCE_PASSWORD = var.db_password
       ALLOWED_ORIGINS              = var.allowed_origins
+      SQS_QUEUE_URL                = var.sqs_queue_url
     }
   }
 
