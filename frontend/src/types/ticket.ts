@@ -27,3 +27,11 @@ export interface UpdateTicketRequest {
   status?: TicketStatus;
   priority?: TicketPriority;
 }
+
+export interface AttachmentResponse {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedAt: string;
+}

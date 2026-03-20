@@ -9,3 +9,7 @@ spring:
 sqs:
   queue:
     url: http://localhost:9324/queue/supportdesk-ticket-routing #to prevent errors when running locally without SQS.
+
+attachments:
+  bucket:
+    name: local-attachments-bucket # not used locally

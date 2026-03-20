@@ -6,6 +6,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { PriorityBadge } from "../components/PriorityBadge";
 import type { TicketStatus, TicketPriority } from "../types/ticket";
 import { TeamBadge } from "../components/TeamBadge";
+import { AttachmentPanel } from "../components/AttachmentPanel";
 
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -99,6 +100,7 @@ export function TicketDetailPage() {
             ))}
           </div>
         </div>
+        <AttachmentPanel ticketId={ticket.id} />
       </div>
     </div>
   );
