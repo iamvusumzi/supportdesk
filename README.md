@@ -55,11 +55,12 @@ API Gateway ──── Lambda (Spring Boot)
 
 Each phase is preserved as a branch:
 
-| Branch    | Description                                                |
-| --------- | ---------------------------------------------------------- |
-| `phase/1` | Core ticketing — Lambda, API Gateway, RDS, S3 + CloudFront |
-| `phase/2` | Async ticket routing — SQS, Python consumer Lambda         |
-| `phase/3` | File attachments with S3 _(in progress)_                   |
+| Branch    | Description                                                   |
+| --------- | ------------------------------------------------------------- |
+| `phase/1` | Core ticketing — Lambda, API Gateway, RDS, S3 + CloudFront    |
+| `phase/2` | Async ticket routing — SQS, Python consumer Lambda            |
+| `phase/3` | File attachments — S3 pre-signed URLs, upload/download/delete |
+| `phase/4` | Auth with Cognito _(in progress)_                             |
 
 Check out any branch to see the complete working state of that phase.
 
@@ -257,7 +258,7 @@ Ticket CRUD, status and priority management, React dashboard, full AWS deploymen
 
 Ticket creation publishes to SQS. A Python Lambda consumer routes tickets to teams based on priority. Introduces event-driven patterns, dead letter queues, and polyglot Lambdas.
 
-### 🔜 Phase 3 — File attachments with S3
+### ✅ Phase 3 — File attachments with S3
 
 Support agents can attach files to tickets. Introduces pre-signed S3 URLs, multipart upload, and storage lifecycle policies.
 
