@@ -19,3 +19,7 @@ output "cloudfront_id" {
 output "db_endpoint" {
   value = module.database.db_endpoint
 }
+
+output "attachments_bucket_name" {
+  value = module.attachments.bucket_name
+}

@@ -39,6 +39,24 @@ resource "aws_iam_role_policy" "lambda_sqs_publish" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_s3_attachments" {
+  name = "supportdesk-lambda-s3-attachments"
+  role = aws_iam_role.lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ]
+      Resource = "${var.attachments_bucket_arn}/attachments/*"
+    }]
+  })
+}
+
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/supportdesk-backend"
   retention_in_days = 7
@@ -85,6 +103,7 @@ resource "aws_lambda_function" "backend" {
       SPRING_DATASOURCE_PASSWORD = var.db_password
       ALLOWED_ORIGINS              = var.allowed_origins
       SQS_QUEUE_URL                = var.sqs_queue_url
+      ATTACHMENTS_BUCKET_NAME = var.attachments_bucket_name
     }
   }
 

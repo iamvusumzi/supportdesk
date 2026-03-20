@@ -98,15 +98,17 @@ module "database" {
 }
 
 module "lambda" {
-  source          = "./modules/lambda"
-  db_url          = module.database.db_endpoint
-  db_username     = var.db_username
-  db_password     = var.db_password
-  aws_region      = var.aws_region
-  jar_path        = "../backend/supportdesk/target/supportdesk-0.0.1-SNAPSHOT-aws.jar"
-  allowed_origins = module.frontend.cloudfront_url
-  sqs_queue_url   = module.sqs.queue_url
-  sqs_queue_arn   = module.sqs.queue_arn
+  source                  = "./modules/lambda"
+  db_url                  = module.database.db_endpoint
+  db_username             = var.db_username
+  db_password             = var.db_password
+  aws_region              = var.aws_region
+  jar_path                = "../backend/supportdesk/target/supportdesk-0.0.1-SNAPSHOT-aws.jar"
+  allowed_origins         = module.frontend.cloudfront_url
+  sqs_queue_url           = module.sqs.queue_url
+  sqs_queue_arn           = module.sqs.queue_arn
+  attachments_bucket_name = module.attachments.bucket_name
+  attachments_bucket_arn  = module.attachments.bucket_arn
 }
 
 module "api_gateway" {
@@ -123,6 +125,11 @@ module "frontend" {
 
 module "sqs" {
   source = "./modules/sqs"
+}
+
+module "attachments" {
+  source          = "./modules/attachments"
+  allowed_origins = module.frontend.cloudfront_url
 }
 
 module "lambda_consumer" {

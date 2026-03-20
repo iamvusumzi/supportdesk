@@ -1,0 +1,1 @@
+variable "allowed_origins" { type = string }
